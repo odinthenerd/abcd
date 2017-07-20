@@ -3,11 +3,16 @@
 
 struct other_policy;
 
+namespace abcd = kvasir::abcd;
+
 struct has_meaning_of_life{};
 struct my_policy;
-namespace abcd{
-    template<>
-    struct has_capability<my_policy,has_meaning_of_life> : std::true_type{};
+namespace kvasir {
+    namespace abcd {
+        template<>
+        struct has_capability<my_policy, has_meaning_of_life> : std::true_type {
+        };
+    }
 }
 //only the public policies public function are part of the policy based classes public interface
 template<typename T>
@@ -47,10 +52,12 @@ struct other_public_policy{
     }
 };
 
-namespace abcd {
-    template<>
-    struct has_capability<other_policy, abcd::requires_init_and_destruct> : std::true_type {
-    };
+namespace kvasir {
+    namespace abcd {
+        template<>
+        struct has_capability<other_policy, abcd::requires_init_and_destruct> : std::true_type {
+        };
+    }
 }
 struct other_policy{
     int i_am_data;
@@ -82,10 +89,12 @@ struct my_allocator{
 };
 struct is_allocator{};
 
-namespace abcd {
-    template<>
-    struct has_capability<my_allocator, is_allocator> : std::true_type {
-    };
+namespace kvasir {
+    namespace abcd {
+        template<>
+        struct has_capability<my_allocator, is_allocator> : std::true_type {
+        };
+    }
 }
 
 //factory
@@ -97,8 +106,8 @@ abcd::combiner<Ts...> make_my_class(Ts...args){
 
 int main(){
     auto m = make_my_class(my_policy{0}, other_policy{4}, my_allocator{});
-    //m.foo();
-    //m.bar();
+    m.foo();
+    m.bar();
     //m.data is private
     //m.meaning_of_life() totally hidden
 }
