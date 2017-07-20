@@ -20,6 +20,8 @@ target_compile_features(kvasir_abcd INTERFACE
 		cxx_user_literals
 		${CPP_EXTRA_FEATURES})
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mpl/src/)
+
 add_executable(kvasir_abcd_test test/test.cpp)
 target_link_libraries(kvasir_abcd_test kvasir_abcd)
 target_compile_options(kvasir_abcd_test PUBLIC -ftemplate-depth=2048 -Wall) # -std=gnu++1z)
