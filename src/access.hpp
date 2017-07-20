@@ -23,11 +23,6 @@ namespace kvasir {
             U &operator[](index_t <U>) {
                 return std::get<detail::index_from_tuple<U,decltype(T::data)>::value>(data);
             }
-
-            template<typename C, typename Lambda>
-            void for_each(capability_t <C>, Lambda l) {
-                //execute lambda with each capability
-            }
         };
     }
 }
