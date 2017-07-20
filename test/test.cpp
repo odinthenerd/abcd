@@ -97,15 +97,8 @@ namespace kvasir {
     }
 }
 
-//factory
-template<typename...Ts>
-abcd::combiner<Ts...> make_my_class(Ts...args){
-    //arbitrary plausibility checks here
-    return std::tuple<Ts...>{args...};
-}
-
 int main(){
-    auto m = make_my_class(my_policy{0}, other_policy{4}, my_allocator{});
+    auto m = abcd::combine(my_policy{0}, other_policy{4}, my_allocator{});
     m.foo();
     m.bar();
     //m.data is private

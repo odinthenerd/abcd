@@ -24,5 +24,11 @@ namespace kvasir {
                 //std::get<other_policy>(data).cleanup(data);
             }
         };
+
+        //factory
+        template<typename...Ts>
+        abcd::combiner<Ts...> combine(Ts...args){
+            return std::tuple<Ts...>{args...};
+        }
     }
 }
