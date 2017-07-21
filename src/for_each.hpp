@@ -11,7 +11,7 @@ namespace kvasir{
             using filter_by_capability = call<unpack<filter<push_back<C,cfe<has_capability>>>>,A>;
         }
         template<typename A, typename C, typename F, typename...Ts>
-        void for_each(A access, capability_t <C>, F l, list<Ts...> filtered = detail::filter_by_capability<A,C>{}) {
+        void for_each(A access, capability_t <C>, F l, ::kvasir::mpl::list<Ts...> filtered = detail::filter_by_capability<A,C>{}) {
             int r[] = {(l(access[capability_t<Ts>{}]),0)...};
             (void)r;
         }
