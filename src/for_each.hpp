@@ -4,7 +4,7 @@
 namespace kvasir{
     namespace abcd{
         namespace detail{
-            using namespace mpl;
+            using namespace ::kvasir::mpl;
             template<typename A, typename C>
             using filter_by_capability = call<unpack<filter<push_back<C,cfe<has_capability>>>>,A>;
         }

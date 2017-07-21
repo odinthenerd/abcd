@@ -3,7 +3,7 @@
 namespace test1 {
     struct other_policy;
 
-    namespace abcd = kvasir::abcd;
+    namespace abcd = ::kvasir::abcd;
 
 
 
