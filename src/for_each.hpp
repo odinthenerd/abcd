@@ -1,5 +1,6 @@
 #pragma once
 #include "capabilities.hpp"
+#include "types.hpp"
 #include "kvasir/mpl/mpl.hpp"
 
 namespace kvasir{
