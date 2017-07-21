@@ -66,13 +66,10 @@ namespace test1 {
         };
     };
 
-    template<typename>
-    struct my_allocator_public {
-    };
 
     struct my_allocator {
         template<typename T>
-        using f = my_allocator_public<T>;
+        using f = void;  //allocator has no public policy
 
         //note different allocator model
         char *allocate(std::size_t size) {

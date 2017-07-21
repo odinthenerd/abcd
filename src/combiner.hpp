@@ -7,6 +7,9 @@
 
 namespace kvasir {
     namespace abcd {
+        template<typename... Ts>
+        class combiner;
+
         namespace detail{
             struct call_destruct{
                 template<typename T>
@@ -20,11 +23,16 @@ namespace kvasir {
                     t.init();
                 }
             };
+            template<typename...Ts>
+            struct deriver : Ts... {};
+
+            template<typename...Ts>
+            using make_base = call<remove_if<same_as<void>,cfe<deriver>>, typename Ts::template f<combiner<Ts...>> ...>;
         }
-        //generic agent based class design combiner,
-//only one generic pattern for all instances
+
+
         template<typename... Ts>
-        class combiner : public Ts::template f<combiner<Ts...>> ... {
+        class combiner : public detail::make_base<Ts...> {
             std::tuple<Ts...> data;
             using data_type = std::tuple<Ts...>;
         public:
