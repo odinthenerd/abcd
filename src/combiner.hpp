@@ -26,6 +26,7 @@ namespace kvasir {
         template<typename... Ts>
         class combiner : public Ts::template f<combiner<Ts...>> ... {
             std::tuple<Ts...> data;
+            using data_type = std::tuple<Ts...>;
         public:
             combiner(std::tuple<Ts...> &&d) : data{std::move(d)} {
                 for_each(access<combiner>(this),capability_t<requires_init_and_destruct>{},detail::call_init{});

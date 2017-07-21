@@ -14,14 +14,14 @@ namespace kvasir {
 
         template<typename T>
         struct access {
-            decltype(T::data) &data;
+            typename T::data_type &data;
 
             template<typename U>
             access(U *p):data{static_cast<T *>(p)->data} {}
 
             template<typename U>
             U &operator[](index_t <U>) {
-                return std::get<detail::index_from_tuple<U,decltype(T::data)>::value>(data);
+                return std::get<detail::index_from_tuple<U,typename T::data_type>::value>(data);
             }
         };
     }
