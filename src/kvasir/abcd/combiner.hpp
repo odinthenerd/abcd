@@ -26,13 +26,12 @@ namespace kvasir {
             template<typename...Ts>
             struct deriver : Ts... {};
 
-            template<typename...Ts>
-            using make_base = call<remove_if<same_as<void>,cfe<deriver>>, typename Ts::template f<combiner<Ts...>> ...>;
+            using make_base = remove_if<same_as<void>,cfe<deriver>>;
         }
 
 
         template<typename... Ts>
-        class combiner : public detail::make_base<Ts...> {
+        class combiner : public ::kvasir::mpl::call<detail::make_base, typename Ts::template f<combiner<Ts...>> ...> {
             std::tuple<Ts...> data;
             using data_type = std::tuple<Ts...>;
         public:
