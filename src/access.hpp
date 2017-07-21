@@ -17,8 +17,8 @@ namespace kvasir {
             typename T::data_type &data;
 
             template<typename U>
-            access(U *p):data{static_cast<T *>(p)->data} {}
-            access(typename T::data_type& d):data{d}{}
+            access(U *p):data(static_cast<T *>(p)->data) {}
+            access(typename T::data_type& d):data(d){}
 
             template<typename U>
             U &operator[](index_t <U>) {
