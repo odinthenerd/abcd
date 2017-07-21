@@ -1,4 +1,4 @@
-#include "../src/abcd.hpp"
+#include "../src/kvasir/abcd/abcd.hpp"
 
 namespace test1 {
     struct other_policy;
