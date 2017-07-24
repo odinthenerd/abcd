@@ -10,10 +10,16 @@ namespace kvasir{
             template<typename A, typename C>
             using filter_by_capability = call<unpack<filter<push_back<C,cfe<has_capability>>>>,A>;
         }
-        template<typename A, typename C, typename F, typename...Ts>
-        void for_each(A access, capability_t <C>, F l, ::kvasir::mpl::list<Ts...> filtered = detail::filter_by_capability<A,C>{}) {
-            int r[] = {(l(access[capability_t<Ts>{}]),0)...};
-            (void)r;
+		namespace detail {
+			template<typename A, typename F, typename...Ts>
+			void for_each_helper(A access, F l, ::kvasir::mpl::list<Ts...>) {
+				int r[] = { 0,(l(access[index_t<Ts>{}]),0)... };
+				(void)r;
+			}
+		}
+        template<typename T, typename C, typename F>
+        void for_each(access<T> access, capability_t <C>, F l) {
+			detail::for_each_helper(access, l, detail::filter_by_capability<T, C>{});
         }
     }
 }

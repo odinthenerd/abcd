@@ -2,18 +2,22 @@
 
 namespace kvasir {
     namespace abcd {
+
+		//index by type
         template<typename T>
         struct index_t {
         };
 
-//    template<typename T>
-//    constexpr index_t<T> idx{};
-
+		//index by capability 
         template<typename T>
         struct capability_t {
-        };
+		};
 
-//    template<typename T>
-//    constexpr capability_t<T> capability{};
+		template<template<typename> class F>
+		struct wrap_trivial_public_interface {
+			template<typename T>
+			using f = F<T>;
+		};
+
     }
 }
