@@ -1,5 +1,5 @@
 # abcd
-Agent Based Class Design is a paradigm similar to polic based class design but somewhat more generic. This library provides an implementation of a generic agent composition class and tools to help the user implement agents.
+Agent Based Class Design is a paradigm similar to policy based class design but somewhat more generic. This library provides an implementation of a generic agent composition class and tools to help the user implement agents.
 
 ## what are agents?
 There are several meanings for the term "agent", even within software development. In the sense of this library an agent is an object which is capable of performing a small set (preferably one) of tasks. In order to perform a task an agent may rely on other agents. Each agent must publish its capabilities, other agents use this information in order to find capabilities which they rely on. Any composition of agents is valid if the capabilities required by each agent is provided by one of the other agents in the composition. 
