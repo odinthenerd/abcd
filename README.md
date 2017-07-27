@@ -6,7 +6,7 @@ There are several meanings for the term "agent", even within software developmen
 Concrete agent implementations consist of a private portion which may contain state and an optional public interface portion which cannot contain state but can access the private state of all other agents in the composition. The public interface of a composition of agents consists of an aggregation of all the public interface portions of all agents. Each action originates in a call to a function in the public interface which in turn may select one or many agents based on their published capabilities and call into them in order to perform the task.
 
 ### I want to see code
-A niece attempt to express the [wikipedia example of policy based class design](https://en.wikipedia.org/wiki/Policy-based_design) in terms of agent based class design:
+A naive attempt to express the [wikipedia example of policy based class design](https://en.wikipedia.org/wiki/Policy-based_design) in terms of agent based class design:
 ```
 #include <iostream>
 #include <string>
