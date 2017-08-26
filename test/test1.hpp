@@ -47,7 +47,7 @@ namespace test1 {
             auto data = abcd::access<T>(this);
             data[abcd::index_t < my_policy > {}].i_++;//can access other policies data
             data[abcd::index_t < other_policy > {}].i_am_data = data[abcd::index_t < my_policy > {}].meaning_of_life();
-            for_each(data, abcd::capability_t < has_meaning_of_life > {}, call_meaning_of_life_t{});
+            for_each(data, abcd::ability< has_meaning_of_life >, call_meaning_of_life_t{});
         }
     };
 
@@ -88,13 +88,13 @@ namespace test1 {
     namespace kvasir {
         namespace abcd {
             template<>
-            struct has_capability<::test1::my_allocator, ::test1::is_allocator> : std::true_type {
+            struct has_ability<::test1::my_allocator, ::test1::is_allocator> : std::true_type {
             };
             template<>
-            struct has_capability<::test1::other_policy, requires_init_and_destruct> : std::true_type {
+            struct has_ability<::test1::other_policy, requires_init_and_destruct> : std::true_type {
             };
             template<>
-            struct has_capability<::test1::my_policy, ::test1::has_meaning_of_life> : std::true_type {
+            struct has_ability<::test1::my_policy, ::test1::has_meaning_of_life> : std::true_type {
             };
         }
     }

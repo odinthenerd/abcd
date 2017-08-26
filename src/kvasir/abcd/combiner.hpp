@@ -14,13 +14,13 @@ namespace kvasir {
             struct call_destruct{
                 template<typename T>
                 void operator()(T& t){
-                    t.cleanup();
+                    t.cleanup(t);
                 }
             };
             struct call_init{
                 template<typename T>
                 void operator()(T& t){
-                    t.init();
+                    t.init(t);
                 }
             };
             template<typename...Ts>
