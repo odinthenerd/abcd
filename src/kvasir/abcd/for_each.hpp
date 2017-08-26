@@ -1,5 +1,5 @@
 #pragma once
-#include "capabilities.hpp"
+#include "abilities.hpp"
 #include "types.hpp"
 #include "kvasir/mpl/mpl.hpp"
 
@@ -23,7 +23,7 @@ namespace kvasir{
 		}
 
 		template<template<typename> class B, typename T, typename C, typename F>
-		void for_each(B<T> base, ability_t <C>, F l) {
+		void for_each(B<T> *base, ability_t <C>, F l) {
 			detail::for_each_helper(access<T>(base), l, detail::filter_by_capability<T, C>{});
 		}
     }

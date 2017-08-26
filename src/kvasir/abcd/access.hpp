@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.hpp"
+#include "abilities.hpp"
 #include <tuple>
 #include "kvasir/mpl/mpl.hpp"
 
@@ -10,6 +11,8 @@ namespace kvasir {
         namespace detail {
             template<typename T, typename U>
             using index_from_tuple = uint_<(call<unpack<size<>>,U>::value - call<unpack<find_if<same_as<T>,size<>>>,U>::value)>;
+            template<typename T, typename U>
+            using index_from_ability = uint_<(call<unpack<size<>>,U>::value - call<unpack<find_if<push_back<T,cfe<has_ability>>,size<>>>,U>::value)>;
         };
 
         template<typename T>
@@ -23,6 +26,10 @@ namespace kvasir {
             template<typename U>
             U &operator[](index_t <U>) {
                 return std::get<detail::index_from_tuple<U,typename T::data_type>::value>(data);
+            }
+            template<typename U>
+            auto &operator[](ability_t <U>) {
+                return std::get<detail::index_from_ability<U,typename T::data_type>::value>(data);
             }
         };
     }
