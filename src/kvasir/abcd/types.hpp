@@ -10,8 +10,11 @@ namespace kvasir {
 
 		//index by capability 
         template<typename T>
-        struct capability_t {
+        struct ability_t {
 		};
+
+		template<typename T>
+		constexpr ability_t<T> ability{};
 
 		template<template<typename> class F>
 		struct wrap_trivial_public_interface {
