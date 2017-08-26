@@ -17,7 +17,7 @@ namespace kvasir{
 				lf();
 			};
 			template<typename T, typename U>
-			constexpr call<unpack<find_if<push_back<T,cfe<has_ability>>,always<bool_<true>>,always<bool_<false>>>>,U> has_ability;
+			constexpr call<unpack<find_if<push_back<T,cfe<has_ability>>,always<bool_<true>>,always<bool_<false>>>>,U> has_ability{};
 		}
  		template<template<typename> class B, typename T, typename C, typename FT, typename FF>
 		void optional(B<T> *base, ability_t<C> a, FT lt, FF lf) {

@@ -39,7 +39,7 @@ namespace kvasir {
                 for_each(access<combiner>(data),ability<requires_init_and_destruct>,detail::call_init{});
             }
 
-            friend class access<combiner>;
+            friend struct access<combiner>;
 
             ~combiner() {
                 for_each(access<combiner>(data),ability<requires_init_and_destruct>,detail::call_destruct{});
