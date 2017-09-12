@@ -3,6 +3,7 @@
 #include "types.hpp"
 #include "access.hpp"
 #include "for_each.hpp"
+#include "interface.hpp"
 #include <tuple>
 
 namespace kvasir {
@@ -26,12 +27,30 @@ namespace kvasir {
             template<typename...Ts>
             struct deriver : Ts... {};
 
-            using make_base = remove_if<same_as<void>,cfe<deriver>>;
+            template<typename T, typename U>
+            struct make_interface_impl{  //default return an empty list because we don't need its type
+                using type = list<>;
+            };
+
+            template<typename T, template<typename T> class ...Ts>
+            struct make_interface_impl<T,interface_t<Ts...>>{
+                    using type = list<Ts<T>...>;
+            };
+
+            //takes the derived class as a fixed parameter, filters
+            //on interface types, unpacks their contents and
+            //passes the provided T as the template parameter
+            //changing them to types
+            template<typename T>
+            struct make_interface{
+                template<typename...Ts>
+                using f = call<join<cfe<deriver>>,typename make_interface_impl<T,Ts>::type...>;
+            };
         }
 
 
         template<typename... Ts>
-        class combiner : public ::kvasir::mpl::call<detail::make_base, typename Ts::template f<combiner<Ts...>> ...> {
+        class combiner : public ::kvasir::mpl::call<detail::make_interface<combiner<Ts...>>, Ts...> {
             std::tuple<Ts...> data;
             using data_type = std::tuple<Ts...>;
         public:
@@ -48,7 +67,7 @@ namespace kvasir {
 
         //factory
         template<typename...Ts>
-        abcd::combiner<Ts...> combine(Ts...args){
+        combiner<Ts...> combine(Ts...args){
             return std::tuple<Ts...>{args...};
         }
     }
