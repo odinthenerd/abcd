@@ -8,7 +8,7 @@ namespace kvasir {
         struct abilities {};
 
         template<typename Agent, typename Capability>
-        struct has_ability : std::false_type {
+        struct has_ability : mpl::false_ {
         };
 
         template<template<typename...> class W, typename...Ts, typename...Us, typename Ability>
