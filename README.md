@@ -2,8 +2,12 @@
 Agent Based Class Design is a paradigm similar to policy based class design but somewhat more generic. This library provides an implementation of a generic agent composition class and tools to help the user implement agents.
 
 ## what are agents?
-There are several meanings for the term "agent", even within software development. In the sense of this library an agent is an object which is capable of performing a small set (preferably one) of tasks. In order to perform a task an agent may rely on other agents. Each agent must publish its capabilities, other agents use this information in order to find capabilities which they rely on. Any composition of agents is valid if the capabilities required by each agent is provided by one of the other agents in the composition. 
-Concrete agent implementations consist of a private portion which may contain state and an optional public interface portion which cannot contain state but can access the private state of all other agents in the composition. The public interface of a composition of agents consists of an aggregation of all the public interface portions of all agents. Each action originates in a call to a function in the public interface which in turn may select one or many agents based on their published capabilities and call into them in order to perform the task.
+There are several meanings for the term "agent", even within software development. In the sense of this library an agent is an object which is capable of performing a small set (preferably one) of tasks. In order to perform a task an agent may rely on other agents. Each agent must publish its abilities, other agents use this information in order to find other agents which they rely on. Any composition of agents is valid if the abilities required by each agent is provided by one of the other agents in the composition. 
+
+Within a composition agents live in a private arena of their owne where they can find eachother either based on concrete type or ability and access eachothers public interfaces freely. In order to bridge the gap between this private arena and the outside world one or multiple public 'inteface' classes can be provided which can acess the private arena of agents and who's public interface is included in the public interace of the composition.
+
+The user can also add abilities to a composition of agents. This allows elegant arbitrary nesting of compositions of agents acting themselves as agents within other compositions.
+
 
 ### I want to see code
 A naive attempt to express the [wikipedia example of policy based class design](https://en.wikipedia.org/wiki/Policy-based_design) in terms of agent based class design:
@@ -19,7 +23,7 @@ struct run_it_public {
     // Behaviour method added to the public interface
     void run() const
     {
-        agents(this)[capavility_v<print_capable>](agents(this)[capavility_v<hello_capable>]());
+        agents(this)[capavility_v<print_capable>](agents(this)[ability<hello_capable>]());
     }
 };
  
