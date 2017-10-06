@@ -11,7 +11,7 @@ The user can also add abilities to a composition of agents. This allows elegant 
 
 ### I want to see code
 A naive attempt to express the [wikipedia example of policy based class design](https://en.wikipedia.org/wiki/Policy-based_design) in terms of agent based class design:
-```
+```cpp
 #include <iostream>
 #include <string>
 
@@ -76,7 +76,7 @@ int main()
 }
 ```
 This is a bit more verbose than the policy based class design version, however it is also more powerfull. For example if one of the agents needs to be initialized with state we can easily do that:
-```
+```cpp
 struct OutputPolicyWriteToOstream
 {
     std::ostream& out;
@@ -90,7 +90,7 @@ struct OutputPolicyWriteToOstream
 auto hello = abcd::compose(abcd::interface<run_it>,OutputPolicyWriteToOstream{std::cout}, LanguagePolicyEnglish{});
 ```
 We can also deal with variadic amounts of a given policy:
-```
+```cpp
 template<typename T>
 struct run_it_public {
     // Behaviour method added to the public interface
