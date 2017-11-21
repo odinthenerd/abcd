@@ -16,7 +16,7 @@ namespace kvasir {
 
         template<template<typename...> class W, typename...Ts, typename...Us, typename Ability>
         struct has_ability<W<abilities_t<Ts...>,Us...>,Ability> :
-                mpl::call<mpl::find_if<mpl::same_as<Ability>,mpl::always<mpl::true_>,mpl::always<mpl::false_>>>{};
+                mpl::call<mpl::find_if<mpl::same_as<Ability>,mpl::always<mpl::true_>,mpl::always<mpl::false_>>,Ts...>{};
 
         ///require this capability to be called in two phase init
         struct requires_init_and_destruct {

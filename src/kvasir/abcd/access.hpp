@@ -2,6 +2,8 @@
 
 #include "types.hpp"
 #include "abilities.hpp"
+#include "optional.hpp"
+#include "for_each.hpp"
 #include <tuple>
 #include "kvasir/mpl/mpl.hpp"
 
@@ -17,19 +19,22 @@ namespace kvasir {
 
         template<typename T>
         struct access {
-            typename T::data_type &data;
-
-            template<typename U>
-            access(U *p):data(static_cast<T *>(p)->data) {}
-            access(typename T::data_type& d):data(d){}
-
             template<typename U>
             U &operator[](index_t <U>) {
-                return std::get<detail::index_from_tuple<U,typename T::data_type>::value>(data);
+                return std::get<detail::index_from_tuple<U,typename T::data_type>::value>(static_cast<T*>(this)->data);
             }
             template<typename U>
             auto &operator[](ability_t <U>) {
-                return std::get<detail::index_from_ability<U,typename T::data_type>::value>(data);
+                return std::get<detail::index_from_ability<U,typename T::data_type>::value>(static_cast<T*>(this)->data);
+            }
+            template<typename C, typename FT, typename FF>
+            void optional(ability_t<C> a, FT lt, FF lf) {
+                detail::optional_impl(detail::ability_in_tuple<C,T>, *this, a, lt, lf);
+            }
+
+            template<typename C, typename F>
+            void for_each(ability_t <C>, F l) {
+                detail::for_each_helper(*this, l, detail::filter_by_capability<T, C>{});
             }
         };
     }
