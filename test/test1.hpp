@@ -1,4 +1,5 @@
 #include "../src/kvasir/abcd/abcd.hpp"
+#include <iostream>
 
 namespace test1 {
     struct other_policy;
@@ -13,9 +14,10 @@ namespace test1 {
 
 //only the public policies public function are part of the policy based classes public interface
     template<typename T>
-    struct my_public_policy {
+    struct my_public_policy : T {
         void foo() {
-            auto a = abcd::access<T>(this);
+            std::cout << __PRETTY_FUNCTION__ << std::endl;
+            auto a = *this;
             a[abcd::index_t < my_policy > {}].i_++;
         }
     };
@@ -26,6 +28,7 @@ namespace test1 {
         template<typename T>
         using f = my_public_policy<T>;  //public interface
         int meaning_of_life() {
+            std::cout << __PRETTY_FUNCTION__ << std::endl;
             return 43; //damn off by one errors
         }
     };
@@ -38,16 +41,17 @@ namespace test1 {
     };
 
     template<typename T>
-    struct other_public_policy {
+    struct other_public_policy : T {
         void init() {}
 
         void cleanup() {}
 
         void bar() {
-            auto data = abcd::access<T>(this);
+            std::cout << __PRETTY_FUNCTION__ << std::endl;
+            auto data = *this;
             data[abcd::index_t < my_policy > {}].i_++;//can access other policies data
             data[abcd::index_t < other_policy > {}].i_am_data = data[abcd::index_t < my_policy > {}].meaning_of_life();
-            for_each(data, abcd::ability< has_meaning_of_life >, call_meaning_of_life_t{});
+            data.for_each(abcd::ability< has_meaning_of_life >, call_meaning_of_life_t{});
         }
     };
 
@@ -58,11 +62,13 @@ namespace test1 {
         template<typename T>
         void init(T t) {
             //allocate or something
+            std::cout << __PRETTY_FUNCTION__ << std::endl;
         };
 
         template<typename T>
         void cleanup(T t) {
             //deallocate or something
+            std::cout << __PRETTY_FUNCTION__ << std::endl;
         };
     };
 
@@ -101,7 +107,7 @@ namespace test1 {
 
 namespace test1{
     int run() {
-        auto m = abcd::combine(my_policy{0}, other_policy{4}, my_allocator{});
+        auto m = abcd::combine(abcd::interface<my_public_policy>, abcd::interface<other_public_policy>, my_policy{0}, other_policy{4}, my_allocator{});
         m.foo();
         m.bar();
         //m.data is private

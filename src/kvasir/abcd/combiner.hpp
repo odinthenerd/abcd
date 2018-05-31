@@ -68,13 +68,13 @@ namespace kvasir {
             using data_type = std::tuple<Ts...>;
         public:
             combiner(std::tuple<Ts...> &&d) : data{std::move(d)} {
-                //for_each(access<combiner>(data),ability<requires_init_and_destruct>,detail::call_init{});
+                this->for_each(ability<requires_init_and_destruct>,detail::call_init{});
             }
 
             friend struct access<combiner>;
 
             ~combiner() {
-                //for_each(access<combiner>(data),ability<requires_init_and_destruct>,detail::call_destruct{});
+                this->for_each(ability<requires_init_and_destruct>,detail::call_destruct{});
             }
         };
 
