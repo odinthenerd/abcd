@@ -18,8 +18,7 @@ struct my_public_policy : T {
 // policies state and members are encapsulated
 struct my_policy {
   int i_;
-  template <typename T>
-  using f = my_public_policy<T>; // public interface
+  using pub_interface = abcd::interface_t<my_public_policy>;
   int meaning_of_life() {
     return 43; // damn off by one errors
   }
@@ -47,10 +46,9 @@ struct other_public_policy : T {
   }
 };
 
-struct other_policy {
+struct other_policy : abcd::pub_interface_t<other_public_policy> {
+  explicit other_policy(int d) : i_am_data(d) {}
   int i_am_data;
-  template <typename T>
-  using f = other_public_policy<T>; // public interface
   template <typename T>
   void init(T t){
       // allocate or something
@@ -63,8 +61,7 @@ struct other_policy {
 };
 
 struct my_allocator {
-  template <typename T>
-  using f = void; // allocator has no public policy
+  // allocator has no public policy
 
   // note different allocator model
   char* allocate(std::size_t size) { return nullptr; }
@@ -91,9 +88,7 @@ struct has_ability<::test1::my_policy, ::test1::has_meaning_of_life>
 
 namespace test1 {
 int run() {
-  auto m = abcd::combine(abcd::interface<my_public_policy>,
-      abcd::interface<other_public_policy>, my_policy{0}, other_policy{4},
-      my_allocator{});
+  auto m = abcd::combine(my_policy{0}, other_policy{4}, my_allocator{});
 
   m.foo();
   m.bar();

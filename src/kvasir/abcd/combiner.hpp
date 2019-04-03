@@ -35,12 +35,19 @@ struct is_interface : mp_false {};
 template <template <typename...> class... Ps>
 struct is_interface<interface_t<Ps...>> : mp_true {};
 
-template <typename T, typename... Ts>
-using make_interface =
-    typename extend_helper::extend<access<T>>::template with_ql<
-        mp_apply<mp_append, mp_transform<extend_helper::to_qlist,
-                                mp_filter<is_interface, mp_list<Ts...>>>>>;
+template <typename T>
+using has_pub_interface_impl = is_interface<typename T::pub_interface>;
 
+template <typename T>
+using has_pub_interface = mp_eval_or<mp_false, has_pub_interface_impl, T>;
+
+template <class T>
+using to_qlist = extend_helper::to_qlist<typename T::pub_interface>;
+
+template <typename T, typename... Ts>
+using make_interface = typename extend_helper::extend<
+    access<T>>::template with_ql<mp_apply<mp_append,
+    mp_transform<to_qlist, mp_filter<has_pub_interface, mp_list<Ts...>>>>>;
 } // namespace detail
 
 template <typename... Ts>
