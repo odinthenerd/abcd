@@ -1,0 +1,3 @@
+[submodule "mp11"]
+	path = mp11
+	url = https://github.com/boostorg/mp11.git

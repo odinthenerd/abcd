@@ -1,20 +1,23 @@
 #pragma once
 
 namespace kvasir {
-namespace abcd {
+    namespace abcd {
 
-// index by type
-template <typename T>
-struct index_t {};
-template <typename T>
-constexpr index_t<T> index{};
+        //index by type
+        template<typename T>
+        struct index_t {
+        };
 
-// index by capability
-template <typename T>
-struct ability_t {};
+        template<typename T>
+        constexpr index_t<T> index{};
 
-template <typename T>
-constexpr ability_t<T> ability{};
+        //index by capability
+        template<typename T>
+        struct ability_t {
+        };
 
-} // namespace abcd
-} // namespace kvasir
+        template<typename T>
+        constexpr ability_t<T> ability{};
+
+    }
+}

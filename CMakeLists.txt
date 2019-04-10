@@ -22,8 +22,8 @@ target_compile_features(kvasir_abcd INTERFACE
 		cxx_user_literals
 		${CPP_EXTRA_FEATURES})
 
-find_package(Boost 1.70.0 REQUIRED COMPONENTS headers)
-target_link_libraries(kvasir_abcd INTERFACE Boost::headers)
+add_subdirectory(mp11)
+target_link_libraries(kvasir_abcd INTERFACE Boost::mp11)
 
 add_executable(kvasir_abcd_test test/test.cpp)
 target_link_libraries(kvasir_abcd_test kvasir_abcd)

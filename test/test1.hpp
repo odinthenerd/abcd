@@ -1,100 +1,110 @@
 #include <kvasir/abcd/abcd.hpp>
 
 namespace test1 {
-struct other_policy;
+    struct other_policy;
 
-namespace abcd = ::kvasir::abcd;
+    namespace abcd = ::kvasir::abcd;
 
-struct has_meaning_of_life {};
-struct my_policy;
 
-// only the public policies public function are part of the policy based classes
-// public interface
-template <typename T>
-struct my_public_policy : T {
-  void foo() { agents(this)[abcd::index<my_policy>].i_++; }
-};
 
-// policies state and members are encapsulated
-struct my_policy {
-  int i_;
-  using pub_interface = abcd::interface_t<my_public_policy>;
-  int meaning_of_life() {
-    return 43; // damn off by one errors
-  }
-};
+    struct has_meaning_of_life {
+    };
+    struct my_policy;
 
-struct call_meaning_of_life_t {
-  template <typename T>
-  void operator()(T t) {
-    t.meaning_of_life();
-  }
-};
+//only the public policies public function are part of the policy based classes public interface
+    template<typename T>
+    struct my_public_policy : T {
+        void foo() {
+            agents(this)[abcd::index<my_policy>].i_++;
+        }
+    };
 
-template <typename T>
-struct other_public_policy : T {
-  void init() {}
+//policies state and members are encapsulated
+    struct my_policy {
+        int i_;
+        using pub_interface = abcd::interface_t<my_public_policy>;
+        int meaning_of_life() {
+            return 43; //damn off by one errors
+        }
+    };
 
-  void cleanup() {}
+    struct call_meaning_of_life_t {
+        template<typename T>
+        void operator()(T t) {
+            t.meaning_of_life();
+        }
+    };
 
-  void bar() {
-    auto& data = agents(this);
-    data[abcd::index<my_policy>].i_++; // can access other policies data
-    data[abcd::index<other_policy>].i_am_data =
-        data[abcd::index<my_policy>].meaning_of_life();
-    data.for_each(abcd::ability<has_meaning_of_life>, call_meaning_of_life_t{});
-  }
-};
+    template<typename T>
+    struct other_public_policy : T {
+        void init() {}
 
-struct other_policy : abcd::pub_interface_t<other_public_policy> {
-  explicit other_policy(int d) : i_am_data(d) {}
-  int i_am_data;
-  template <typename T>
-  void init(T t){
-      // allocate or something
-  };
+        void cleanup() {}
 
-  template <typename T>
-  void cleanup(T t){
-      // deallocate or something
-  };
-};
+        void bar() {
+            auto &data = agents(this);
+            data[abcd::index<my_policy>].i_++;//can access other policies data
+            data[abcd::index<other_policy>].i_am_data = data[abcd::index<my_policy>].meaning_of_life();
+            data.for_each(abcd::ability<has_meaning_of_life>, call_meaning_of_life_t{});
+        }
+    };
 
-struct my_allocator {
-  // allocator has no public policy
+    struct other_policy : abcd::with_pub_interface<other_public_policy> {
+        int i_am_data;
 
-  // note different allocator model
-  char* allocate(std::size_t size) { return nullptr; }
+        explicit other_policy(int d) : i_am_data(d) {}
 
-  void deallocate(char* p, std::size_t size) {}
-};
+        template<typename T>
+        void init(T t) {
+            //allocate or something
+        };
 
-struct is_allocator {};
+        template<typename T>
+        void cleanup(T t) {
+            //deallocate or something
+        };
+    };
 
-} // namespace test1
-namespace kvasir {
-namespace abcd {
-template <>
-struct has_ability<::test1::my_allocator, ::test1::is_allocator>
-    : std::true_type {};
-template <>
-struct has_ability<::test1::other_policy, requires_init_and_destruct>
-    : std::true_type {};
-template <>
-struct has_ability<::test1::my_policy, ::test1::has_meaning_of_life>
-    : std::true_type {};
-} // namespace abcd
-} // namespace kvasir
 
-namespace test1 {
-int run() {
-  auto m = abcd::combine(my_policy{0}, other_policy{4}, my_allocator{});
+    struct my_allocator {
+        //allocator has no public policy
 
-  m.foo();
-  m.bar();
-  // m.data is private
-  // m.meaning_of_life() totally hidden
+        //note different allocator model
+        char *allocate(std::size_t size) {
+            return nullptr;
+        }
 
-  return 0;
+        void deallocate(char *p, std::size_t size) {
+
+        }
+    };
+
+    struct is_allocator {
+    };
+
 }
-} // namespace test1
+    namespace kvasir {
+        namespace abcd {
+            template<>
+            struct has_ability<::test1::my_allocator, ::test1::is_allocator> : std::true_type {
+            };
+            template<>
+            struct has_ability<::test1::other_policy, requires_init_and_destruct> : std::true_type {
+            };
+            template<>
+            struct has_ability<::test1::my_policy, ::test1::has_meaning_of_life> : std::true_type {
+            };
+        }
+    }
+
+namespace test1{
+    int run() {
+        auto m = abcd::combine(my_policy{0}, other_policy{4}, my_allocator{});
+        m.foo();
+        m.bar();
+        //m.data is private
+        //m.meaning_of_life() totally hidden
+
+        return 0;
+    }
+}
