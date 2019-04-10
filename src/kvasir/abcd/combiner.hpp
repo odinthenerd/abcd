@@ -41,11 +41,15 @@ namespace kvasir {
             template<typename T>
             using has_pub_interface = mp_eval_or<mp_false, has_pub_interface_impl, T>;
 
-            template<class T>
-            using to_qlist = extend_helper::to_qlist<typename T::pub_interface>;
+            template <class T>
+            using to_interface = typename T::pub_interface;
 
-            template<typename T, typename...Ts>
-            using make_interface = typename extend_helper::extend<access<T>>::template with_ql<mp_apply<mp_append,mp_transform<to_qlist,mp_filter<has_pub_interface,mp_list<Ts...>>>>>;
+            template <typename... Ts>
+            using filter_interface = mp_unique<mp_apply<mp_append,mp_transform<extend_helper::to_qlist,
+                mp_filter<is_interface,mp_transform_if<has_pub_interface,to_interface,mp_list<Ts...>>>>>>;
+
+            template <typename T, typename... Ts>
+            using make_interface = typename extend_helper::extend<access<T>>::template with_ql<filter_interface<Ts...>>;
         }
 
         template<typename... Ts>
