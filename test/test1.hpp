@@ -1,4 +1,4 @@
-#include "../src/kvasir/abcd/abcd.hpp"
+#include <kvasir/abcd/abcd.hpp>
 
 namespace test1 {
     struct other_policy;
@@ -13,18 +13,16 @@ namespace test1 {
 
 //only the public policies public function are part of the policy based classes public interface
     template<typename T>
-    struct my_public_policy {
+    struct my_public_policy : T {
         void foo() {
-            auto a = abcd::access<T>(this);
-            a[abcd::index_t < my_policy > {}].i_++;
+            agents(this)[abcd::index<my_policy>].i_++;
         }
     };
 
 //policies state and members are encapsulated
     struct my_policy {
         int i_;
-        template<typename T>
-        using f = my_public_policy<T>;  //public interface
+        using pub_interface = abcd::interface_t<my_public_policy>;
         int meaning_of_life() {
             return 43; //damn off by one errors
         }
@@ -38,23 +36,24 @@ namespace test1 {
     };
 
     template<typename T>
-    struct other_public_policy {
+    struct other_public_policy : T {
         void init() {}
 
         void cleanup() {}
 
         void bar() {
-            auto data = abcd::access<T>(this);
-            data[abcd::index_t < my_policy > {}].i_++;//can access other policies data
-            data[abcd::index_t < other_policy > {}].i_am_data = data[abcd::index_t < my_policy > {}].meaning_of_life();
-            for_each(data, abcd::ability< has_meaning_of_life >, call_meaning_of_life_t{});
+            auto &data = agents(this);
+            data[abcd::index<my_policy>].i_++;//can access other policies data
+            data[abcd::index<other_policy>].i_am_data = data[abcd::index<my_policy>].meaning_of_life();
+            data.for_each(abcd::ability<has_meaning_of_life>, call_meaning_of_life_t{});
         }
     };
 
-    struct other_policy {
+    struct other_policy : abcd::with_pub_interface<other_public_policy> {
         int i_am_data;
-        template<typename T>
-        using f = other_public_policy<T>;  //public interface
+
+        explicit other_policy(int d) : i_am_data(d) {}
+
         template<typename T>
         void init(T t) {
             //allocate or something
@@ -68,8 +67,7 @@ namespace test1 {
 
 
     struct my_allocator {
-        template<typename T>
-        using f = void;  //allocator has no public policy
+        //allocator has no public policy
 
         //note different allocator model
         char *allocate(std::size_t size) {

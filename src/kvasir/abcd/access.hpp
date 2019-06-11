@@ -5,16 +5,18 @@
 #include "optional.hpp"
 #include "for_each.hpp"
 #include <tuple>
-#include "kvasir/mpl/mpl.hpp"
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/bind.hpp>
 
 namespace kvasir {
     namespace abcd {
-        using namespace ::kvasir::mpl;
         namespace detail {
+            using namespace boost::mp11;
             template<typename T, typename U>
-            using index_from_tuple = uint_<(call<unpack<size<>>,U>::value - call<unpack<find_if<same_as<T>,size<>>>,U>::value)>;
+            using index_from_tuple = mp_find<U, T>;
+
             template<typename T, typename U>
-            using index_from_ability = uint_<(call<unpack<size<>>,U>::value - call<unpack<find_if<push_back<T,cfe<has_ability>>,size<>>>,U>::value)>;
+            using index_from_ability = mp_find_if_q<U,mp_bind_back<has_ability,T>>;
         };
 
         template<typename T>
@@ -37,5 +39,15 @@ namespace kvasir {
                 detail::for_each_helper(*this, l, detail::filter_by_capability<T, C>{});
             }
         };
+
+        template<typename T>
+        access<T> &agents(access<T> *self) {
+            return *self;
+        }
+
+        template<typename T, typename C, typename F>
+        void for_each(access<T> *self, ability_t<C> a, F l) {
+            self->for_each(a, l);
+        }
     }
 }

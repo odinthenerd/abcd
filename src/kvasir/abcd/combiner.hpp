@@ -4,7 +4,10 @@
 #include "access.hpp"
 #include "for_each.hpp"
 #include "interface.hpp"
+#include "extend_helper.hpp"
 #include <tuple>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/bind.hpp>
 
 namespace kvasir {
     namespace abcd {
@@ -25,42 +28,29 @@ namespace kvasir {
                 }
             };
 
-            template<bool B>
-            struct recursive_derive{
-                template<typename T, template<typename...> class P, template<typename...> class...Ps>
-                using f = typename recursive_derive<(sizeof...(Ps)>0)>::template f<P<T>,Ps...>;
-            };
-            template<>
-            struct recursive_derive<false>{
-                template<typename T, template<typename...> class...Ps>
-                using f = T;
-            };
-
-            template<typename T, typename...Ts>
-            struct recursive_unpack_impl{
-                    using type = T;
-            };
-            template<typename T, template<typename...> class...P0s,template<typename...> class...P1s,template<typename...> class...P2s,template<typename...> class...P3s,typename...Ps>
-            struct recursive_unpack_impl<T, interface_t<P0s...>,interface_t<P1s...>,interface_t<P2s...>,interface_t<P3s...>, Ps...>{
-                using type = typename recursive_unpack_impl<typename recursive_derive<((sizeof...(P0s)+sizeof...(P1s)+sizeof...(P2s)+sizeof...(P3s))>0)>::template f<T,P0s...,P1s...,P2s...,P3s...>,Ps...>::type;
-            };
-
-            template<typename T, typename...Ts>
-            using recursive_unpack = typename recursive_unpack_impl<T,Ts...,interface_t<>,interface_t<>,interface_t<>,interface_t<>>::type;
-
+            using namespace boost::mp11;
             template<typename T>
-            struct is_interface : mpl::false_{};
+            struct is_interface : mp_false {};
 
             template<template<typename...> class...Ps>
-            struct is_interface<interface_t<Ps...>> : mpl::true_ {};
+            struct is_interface<interface_t<Ps...>> : mp_true {};
 
-            using namespace mpl;
+            template<typename T>
+            using has_pub_interface_impl = is_interface<typename T::pub_interface>;
 
-            template<typename T, typename...Ts>
-            using make_interface = call<filter<cfe<is_interface>, push_front<access<T>,cfe<recursive_unpack>>>,Ts...>;
+            template<typename T>
+            using has_pub_interface = mp_eval_or<mp_false, has_pub_interface_impl, T>;
 
+            template <class T>
+            using to_interface = typename T::pub_interface;
+
+            template <typename... Ts>
+            using filter_interface = mp_unique<mp_apply<mp_append,mp_transform<extend_helper::to_qlist,
+                mp_filter<is_interface,mp_transform_if<has_pub_interface,to_interface,mp_list<Ts...>>>>>>;
+
+            template <typename T, typename... Ts>
+            using make_interface = typename extend_helper::extend<access<T>>::template with_ql<filter_interface<Ts...>>;
         }
-
 
         template<typename... Ts>
         class combiner : public detail::make_interface<combiner<Ts...>, Ts...> {
@@ -68,13 +58,13 @@ namespace kvasir {
             using data_type = std::tuple<Ts...>;
         public:
             combiner(std::tuple<Ts...> &&d) : data{std::move(d)} {
-                //for_each(access<combiner>(data),ability<requires_init_and_destruct>,detail::call_init{});
+                agents(this).for_each(ability<requires_init_and_destruct>, detail::call_init{});
             }
 
             friend struct access<combiner>;
 
             ~combiner() {
-                //for_each(access<combiner>(data),ability<requires_init_and_destruct>,detail::call_destruct{});
+                agents(this).for_each(ability<requires_init_and_destruct>, detail::call_destruct{});
             }
         };
 
