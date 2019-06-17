@@ -19,7 +19,7 @@ struct print_capable{};
 struct hello_capable{};
 
 template<typename T>
-struct run_it {
+struct run_it : T {
     // Behaviour method added to the public interface
     void run() const
     {
@@ -66,12 +66,12 @@ using namespace kvasir;
 int main()
 {
     /* Example 1 */
-    auto hello1 = abcd::compose(abcd::interface<run_it>,OutputPolicyWriteToCout{},LanguagePolicyEnglish{});
+    auto hello1 = abcd::combine(abcd::interface<run_it>,OutputPolicyWriteToCout{},LanguagePolicyEnglish{});
     hello1.run(); // prints "Hello, World!"
  
     /* Example 2
      * Does the same, but uses another language agent */
-    auto hello2 = abcd::compose(abcd::interface<run_it>,OutputPolicyWriteToCout{},LanguagePolicyGerman{});
+    auto hello2 = abcd::combine(abcd::interface<run_it>,OutputPolicyWriteToCout{},LanguagePolicyGerman{});
     hello2.run(); // prints "Hallo Welt!"
 }
 ```
@@ -87,16 +87,16 @@ struct OutputPolicyWriteToOstream
     }
 };
 
-auto hello = abcd::compose(abcd::interface<run_it>,OutputPolicyWriteToOstream{std::cout}, LanguagePolicyEnglish{});
+auto hello = abcd::combine(abcd::interface<run_it>,OutputPolicyWriteToOstream{std::cout}, LanguagePolicyEnglish{});
 ```
 We can also deal with variadic amounts of a given policy:
 ```cpp
 template<typename T>
-struct run_it_public {
+struct run_it_public : T {
     // Behaviour method added to the public interface
     void run() const
     {
-        auto agents_ = agents(this);
+        auto& agents_ = agents(this);
         for_each(this,ability<hello_capable>,[&](auto a){
                 agents_[ability<print_capable>](a()+" ");
             });
@@ -104,9 +104,9 @@ struct run_it_public {
 };
 
 
-auto hello = abcd::compose(abcd::interface<run_it>,OutputPolicyWriteToOstream{std::cout},
+auto hello = abcd::combine(abcd::interface<run_it>,OutputPolicyWriteToOstream{std::cout},
         LanguagePolicyEnglish{}, LanguagePolicyGerman{});
-hello1.run(); // prints "Hello, World! Hallo Welt!"
+hello.run(); // prints "Hello, World! Hallo Welt!"
 ```
 In other words in contrast to policy-based class design we have potentially looser coupling, better reusability and a more well defined as well as flexible interaction between agents.
 
