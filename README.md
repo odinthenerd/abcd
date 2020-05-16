@@ -15,6 +15,9 @@ A naive attempt to express the [wikipedia example of policy-based class design](
 #include <iostream>
 #include <string>
 
+using kvasir::abcd::agents;
+using kvasir::abcd::ability;
+
 struct print_capable{};
 struct hello_capable{};
 
@@ -54,11 +57,11 @@ struct LanguagePolicyGerman
 
 namespace kvasir{ namespace abcd {
     template<>
-    struct has_capability<OutputPolicyWriteToCout,print_capable> : std::true_type{};
+    struct has_ability<OutputPolicyWriteToCout,print_capable> : std::true_type{};
     template<>
-    struct has_capability<LanguagePolicyEnglish,hello_capable> : std::true_type{};
+    struct has_ability<LanguagePolicyEnglish,hello_capable> : std::true_type{};
     template<>
-    struct has_capability<LanguagePolicyGerman,hello_capable> : std::true_type{};
+    struct has_ability<LanguagePolicyGerman,hello_capable> : std::true_type{};
 }}
 
 using namespace kvasir;
@@ -75,6 +78,8 @@ int main()
     hello2.run(); // prints "Hallo Welt!"
 }
 ```
+[Run on godbolt.org](https://godbolt.org/z/5ajHYo)
+
 This is a bit more verbose than the policy-based class design version, however it is also more powerfull. For example if one of the agents needs to be initialized with state we can easily do that:
 ```cpp
 struct OutputPolicyWriteToOstream
@@ -87,8 +92,15 @@ struct OutputPolicyWriteToOstream
     }
 };
 
+namespace kvasir{ namespace abcd {
+template<>
+    struct has_ability<OutputPolicyWriteToOstream,print_capable> : std::true_type{};
+}}
+    
 auto hello = abcd::combine(abcd::interface<run_it>,OutputPolicyWriteToOstream{std::cout}, LanguagePolicyEnglish{});
 ```
+[Run on godbolt.org](https://godbolt.org/z/oL4O9b)
+
 We can also deal with variadic amounts of a given policy:
 ```cpp
 template<typename T>
@@ -108,5 +120,7 @@ auto hello = abcd::combine(abcd::interface<run_it>,OutputPolicyWriteToOstream{st
         LanguagePolicyEnglish{}, LanguagePolicyGerman{});
 hello.run(); // prints "Hello, World! Hallo Welt!"
 ```
+[Run on godbolt.org](https://godbolt.org/z/4ndURu)
+
 In other words in contrast to policy-based class design we have potentially looser coupling, better reusability and a more well defined as well as flexible interaction between agents.
 
