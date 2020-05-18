@@ -124,3 +124,126 @@ hello.run(); // prints "Hello, World! Hallo Welt!"
 
 In other words in contrast to policy-based class design we have potentially looser coupling, better reusability and a more well defined as well as flexible interaction between agents.
 
+### A Little More In-depth
+We have seen the `[]` operator and `for_each` function in use in the examples above.  These provide for interacting with the first agent having a capability and with any agent having a capability.  The `optional` function provides for the case where we may not have an agent with a capability.
+
+#### The `[]` operator
+In this library, the `[]` operator selects the first agent which matches the capability requested.  This means that if there are multiple agents registering the requested capability, only the first will be returned by this function.  The order that agents are combined into the collection can effect which is selected by this function.
+```
+struct highlander_capable{};
+
+template<typename T>
+struct highlander_it : T {
+    // Behaviour method added to the public interface
+    void highlander() const
+    {
+        // demonstrate call to speak method of first highlander_capable agent
+        agents(this)[ability<highlander_capable>].speak();
+    }
+};
+
+struct MacLeod
+{
+    void speak() const { std::cout << "There can be only one!\n"; }
+};
+
+struct TheKurgan
+{
+    void speak() const { std::cout << "Another time MacLeod!\n"; }
+};
+
+namespace kvasir{ namespace abcd {
+    template<>
+    struct has_ability<MacLeod,highlander_capable> : std::true_type{};
+    template<>
+    struct has_ability<TheKurgan,highlander_capable> : std::true_type{};
+}}
+
+auto shout = abcd::combine(abcd::interface<highlander_it>,MacLeod{},TheKurgan{});
+shout.highlander(); // prints "There can be only one!"
+auto shout2 = abcd::combine(abcd::interface<highlander_it>,TheKurgan{},MacLeod{});
+shout2.highlander(); // prints "Another time MacLeod!"
+```
+[Run on godbolt.org](https://godbolt.org/z/FKQp3X)
+
+Note that the `agent&` is returned by the `[]` operator.  Methods can be invoked with the `.method_name()` syntax and the agent's `operator()` can be invoked `()` as seen previously.
+```
+struct hypnotize_capable{};
+
+template<typename T>
+struct hypnotize_it : T {
+    // Behaviour method added to the public interface
+    void hypnotize() const
+    {
+        // demonstrate call to operator() of first hypnotize_capable agent
+        agents(this)[ability<hypnotize_capable>]();
+    }
+};
+
+struct Mugatu
+{
+    void operator()() const { std::cout << "Kill the prime minister of Malaysia!\n"; }
+};
+
+namespace kvasir{ namespace abcd {
+    template<>
+    struct has_ability<Mugatu,hypnotize_capable> : std::true_type{};
+}}
+
+auto subliminal = abcd::combine(abcd::interface<hypnotize_it>,MacLeod{},Mugatu{});
+subliminal.hypnotize(); // prints "Kill the prime minister of Malaysia!"
+```
+[Run on godbolt.org](https://godbolt.org/z/ZKZhGK)
+
+#### The `for_each` function
+Collections that have multiple agents satisfying a capability may wish to act upon all of these agents.  The `for_each` function sequentially applies a function to all of the agents in the collection which statisfy the capability requirement.  Note: Use a lambda here to make your life easier. The lambda is not required to capture the environment.
+```
+template<typename T>
+struct speak_it : T {
+    // Behaviour method added to the public interface
+    void speak() const
+    {
+        // demonstrate call to speak method of all highlander_capable agents
+        auto &agents_ = agents(this);
+        for_each(this, ability<highlander_capable>, [&](auto a){ a.speak(); });
+    }
+};
+
+auto taunt = abcd::combine(abcd::interface<speak_it>,MacLeod{},TheKurgan{});
+taunt.speak(); // prints "There can be only one!" followed by "Another Time MacLeod!"
+
+```
+[Run on godbolt.org](https://godbolt.org/z/szBk7B)
+
+#### The `optional` function
+Collections which may not have any agents satisfying a capability may still need to implement an interface depending on that capability.  The `optional` function allows for this case and alternatively executes a true case function or a fallback function.  Note: use lambdas here unless you like self inflicted pain.
+```
+struct relax_capable{};
+
+template<typename T>
+struct relax_it : T {
+    // Behaviour method added to the public interface
+    void relax() const
+    {
+        // demonstrate optional call to relax method or fallback
+        agents(this).optional(ability<relax_capable>,
+         [&](auto a){a.relax();},
+         [](){std::cout << "I invented the Paino Key Necktie!\n"; });
+    }
+};
+
+struct Frankie
+{
+    void relax() const { std::cout << "Relax! Don't do it!\n"; }
+};
+
+namespace kvasir{ namespace abcd {
+    struct has_ability<Frankie,relax_capable> : std::true_type{};
+}}
+
+auto sing = abcd::combine(abcd::interface<relax_it>,Frankie{},MacLeod{});
+sing.relax(); // prints "Relax! Don't do it!"
+auto scream = abcd::combine(abcd::interface<relax_it>,Mugatu{},MacLeod{});
+scream.relax(); // prints "I invented the Piano Key Necktie!"
+```
+[Run on godbolt.org](https://godbolt.org/z/44BgS8)
